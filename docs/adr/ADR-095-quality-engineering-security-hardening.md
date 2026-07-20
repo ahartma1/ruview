@@ -1,4 +1,4 @@
-# ADR-050: Quality Engineering Response — Security Hardening & Code Quality
+# ADR-095: Quality Engineering Response — Security Hardening & Code Quality
 
 | Field | Value |
 |-------|-------|

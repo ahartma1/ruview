@@ -404,5 +404,5 @@ node scripts/train-camera-free.js \
 - [ruvllm source](vendor/ruvector/npm/packages/ruvllm/) — v2.5.4
 - [ADR-069](ADR-069-cognitum-seed-csi-pipeline.md) — Cognitum Seed CSI Pipeline
 - [ADR-070](ADR-070-self-supervised-pretraining.md) — Self-Supervised Pretraining Protocol
-- [ADR-024](ADR-024-contrastive-csi-embedding.md) — Contrastive CSI Embedding / AETHER
-- [ADR-016](ADR-016-ruvector-training-pipeline.md) — RuVector Training Pipeline Integration
+- [ADR-024](ADR-024-contrastive-csi-embedding-model.md) — Contrastive CSI Embedding / AETHER
+- [ADR-016](ADR-016-ruvector-integration.md) — RuVector Training Pipeline Integration

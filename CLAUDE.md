@@ -146,7 +146,7 @@ execution (ONNX/tch/candle backends selected via feature flags).
 | `wifi-densepose-db` | Database layer (Postgres, SQLite, Redis via SQLx) |
 | `wifi-densepose-config` | Configuration loading (env, YAML, TOML) |
 | `wifi-densepose-wasm` | Browser WASM bindings (depends on `mat`) |
-| `wifi-densepose-wasm-edge` | 67 WASM sensing modules for on-ESP32 execution (ADR-040/041); **excluded** from workspace, builds for `wasm32-unknown-unknown` only |
+| `wifi-densepose-wasm-edge` | 65 WASM sensing modules for on-ESP32 execution (ADR-040/041); **excluded** from workspace, builds for `wasm32-unknown-unknown` only |
 | `wifi-densepose-cli` | `wifi-densepose` CLI binary (depends on `mat`) |
 | `wifi-densepose-sensing-server` | Lightweight Axum server for the WiFi sensing UI (depends on `wifiscan`) |
 | `wifi-densepose-wifiscan` | Multi-BSSID WiFi scanning (ADR-022) |
@@ -187,11 +187,11 @@ gate), `fusion.rs` (`MultistaticArray` aggregate root, domain events).
 
 ### Architecture Decision Records
 
-44 ADRs in `docs/adr/` (`docs/adr/README.md` is the categorized index — hardware/firmware,
+92 ADRs in `docs/adr/` (`docs/adr/README.md` is the categorized index — hardware/firmware,
 signal processing, ML/training, platform/UI, infra). Read the index before making an
 architectural change; ADRs are the source of truth for *why*, and DDD models in `docs/ddd/`
 define the shared vocabulary (bounded contexts, aggregates) that ADRs reference. Notable
-recent/active ones: ADR-040/041 (WASM edge sensing, 67 modules), ADR-059 (live ESP32 CSI
+recent/active ones: ADR-040/041 (WASM edge sensing, 65 modules), ADR-059 (live ESP32 CSI
 pipeline), ADR-079 (camera-supervised training, 92.9% PCK@20), ADR-082 (pose tracker confirmed-
 track filter), ADR-089/090/092 (nvsim NV-diamond simulator), ADR-094 (point-cloud GitHub Pages
 deployment).

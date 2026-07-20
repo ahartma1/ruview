@@ -296,7 +296,7 @@ firmware's `nvs_config_t` struct (see `firmware/esp32-csi-node/main/nvs_config.h
 #### `MeshConfig` (Entity)
 
 A mesh-level configuration that generates per-node `NodeConfig` instances.
-Corresponds to ADR-044 Phase 2 (config file provisioning).
+Corresponds to ADR-050 Phase 2 (config file provisioning).
 
 | Field | Type | Description |
 |-------|------|-------------|
