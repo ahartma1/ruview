@@ -5,7 +5,7 @@
 | Status | Proposed |
 | Date | 2026-03-06 |
 | Deciders | ruv |
-| Depends on | ADR-012 (ESP32 CSI Mesh), ADR-039 (Edge Intelligence), ADR-040 (WASM Programmable Sensing), ADR-044 (Provisioning Enhancements), ADR-050 (Security Hardening), ADR-051 (Server Decomposition) |
+| Depends on | ADR-012 (ESP32 CSI Mesh), ADR-039 (Edge Intelligence), ADR-040 (WASM Programmable Sensing), ADR-050 (Provisioning Enhancements), ADR-095 (Security Hardening), ADR-051 (Server Decomposition — not yet written) |
 | Issue | [#177](https://github.com/ruvnet/RuView/issues/177) |
 
 ## Context
@@ -800,9 +800,9 @@ Total estimated effort: ~11 weeks for a single developer.
 - ADR-012: ESP32 CSI Sensor Mesh
 - ADR-039: ESP32 Edge Intelligence
 - ADR-040: WASM Programmable Sensing
-- ADR-044: Provisioning Tool Enhancements
-- ADR-050: Quality Engineering — Security Hardening
-- ADR-051: Sensing Server Decomposition
+- ADR-050: Provisioning Tool Enhancements
+- ADR-095: Quality Engineering — Security Hardening
+- ADR-051: Sensing Server Decomposition (referenced, not yet written)
 - `firmware/esp32-csi-node/` — ESP32 firmware source
 - `firmware/esp32-csi-node/provision.py` — Current provisioning script
 - `v2/crates/wifi-densepose-sensing-server/` — Sensing server

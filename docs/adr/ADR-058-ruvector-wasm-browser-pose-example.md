@@ -382,8 +382,8 @@ Rejected: Adds build tooling. Vanilla JS + ES modules keeps the demo self-contai
 
 ## References
 
-- [ADR-018: Binary CSI Frame Format](ADR-018-binary-csi-frame-format.md)
-- [ADR-024: Contrastive CSI Embedding / AETHER](ADR-024-contrastive-csi-embedding.md)
+- [ADR-018: Binary CSI Frame Format](ADR-018-esp32-dev-implementation.md)
+- [ADR-024: Contrastive CSI Embedding / AETHER](ADR-024-contrastive-csi-embedding-model.md)
 - [ADR-055: Integrated Sensing Server](ADR-055-integrated-sensing-server.md)
 - `vendor/ruvector/crates/ruvector-cnn/src/lib.rs` — CNN embedder implementation
 - `vendor/ruvector/crates/ruvector-cnn-wasm/src/lib.rs` — WASM bindings

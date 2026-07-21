@@ -258,6 +258,6 @@ Total system cost: $55-65 (3 ESP32 nodes + 1 TV box)
 - [rtw88 driver](https://github.com/torvalds/linux/tree/master/drivers/net/wireless/realtek/rtw88) — Mainline Linux driver for Realtek 802.11ac chips
 - [mt76 driver](https://github.com/torvalds/linux/tree/master/drivers/net/wireless/mediatek/mt76) — Mainline Linux driver for MediaTek WiFi chips
 - [cross](https://github.com/cross-rs/cross) — Zero-setup Rust cross-compilation
-- [ADR-018: ESP32 CSI Binary Protocol](ADR-018-dev-implementation.md) — Binary frame format reused for Phase 2 CSI extraction
+- [ADR-018: ESP32 CSI Binary Protocol](ADR-018-esp32-dev-implementation.md) — Binary frame format reused for Phase 2 CSI extraction
 - [ADR-039: Edge Intelligence](ADR-039-esp32-edge-intelligence.md) — On-device processing tiers
 - [ADR-043: Sensing Server](ADR-043-sensing-server-ui-api-completion.md) — Single-binary deployment target

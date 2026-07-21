@@ -546,7 +546,7 @@ pub struct EspNodeConnection {
 - Dedicated AP uses a separate WiFi interface or virtual interface (not the uplink)
 - ESP32 subnet is isolated from upstream LAN by default (firewall rules)
 - If dedicated AP is disabled, ESP32 nodes must be on the same LAN subnet as the appliance
-- Node discovery does not require mDNS or any discovery protocol — ESP32 nodes are configured with the appliance's IP via NVS provisioning (ADR-044)
+- Node discovery does not require mDNS or any discovery protocol — ESP32 nodes are configured with the appliance's IP via NVS provisioning (ADR-050)
 
 ---
 
@@ -641,8 +641,8 @@ For multi-room deployments, each appliance is self-contained (runs its own sensi
 
 - [ADR-046: Android TV Box / Armbian Deployment](../adr/ADR-046-android-tv-box-armbian-deployment.md) — Primary architectural decision
 - [ADR-012: ESP32 CSI Sensor Mesh](../adr/ADR-012-esp32-csi-sensor-mesh.md) — ESP32 mesh network design
-- [ADR-018: Dev Implementation](../adr/ADR-018-dev-implementation.md) — ESP32 binary CSI protocol
+- [ADR-018: Dev Implementation](../adr/ADR-018-esp32-dev-implementation.md) — ESP32 binary CSI protocol
 - [ADR-039: Edge Intelligence](../adr/ADR-039-esp32-edge-intelligence.md) — On-device processing tiers
-- [ADR-044: Provisioning Tool](../adr/ADR-044-provisioning-tool-enhancements.md) — NVS provisioning for ESP32 nodes
+- [ADR-050: Provisioning Tool](../adr/ADR-050-provisioning-tool-enhancements.md) — NVS provisioning for ESP32 nodes
 - [Hardware Platform Domain Model](hardware-platform-domain-model.md) — Upstream domain (ESP32 hardware)
 - [Sensing Server Domain Model](sensing-server-domain-model.md) — Upstream domain (server software)

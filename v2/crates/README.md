@@ -282,7 +282,7 @@ Key design decisions documented in [`docs/adr/`](https://github.com/ruvnet/wifi-
 | [ADR-017](https://github.com/ruvnet/wifi-densepose/blob/main/docs/adr/ADR-017-ruvector-signal-mat-integration.md) | RuVector Signal + MAT Integration | Accepted |
 | [ADR-021](https://github.com/ruvnet/wifi-densepose/blob/main/docs/adr/ADR-021-vital-sign-detection.md) | Vital Sign Detection Pipeline | Accepted |
 | [ADR-022](https://github.com/ruvnet/wifi-densepose/blob/main/docs/adr/ADR-022-windows-wifi-enhanced.md) | Windows WiFi Enhanced Sensing | Accepted |
-| [ADR-024](https://github.com/ruvnet/wifi-densepose/blob/main/docs/adr/ADR-024-contrastive-csi-embedding.md) | Contrastive CSI Embedding Model | Accepted |
+| [ADR-024](https://github.com/ruvnet/wifi-densepose/blob/main/docs/adr/ADR-024-contrastive-csi-embedding-model.md) | Contrastive CSI Embedding Model | Accepted |
 
 ## Related Projects
 
