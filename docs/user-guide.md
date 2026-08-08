@@ -1351,7 +1351,8 @@ node scripts/benchmark-ruvllm.js --model models/csi-ruvllm
 
 ## Docker Compose (Multi-Service)
 
-For production deployments with both Rust and Python services:
+For quick evaluation with both the Rust and Python services (simulated CSI,
+no hardening — not for unattended production use):
 
 ```bash
 cd docker
@@ -1361,6 +1362,20 @@ docker compose up
 This starts:
 - Rust sensing server on ports 3000 (HTTP), 3001 (WS), 5005 (UDP)
 - Python legacy server on ports 8080 (HTTP), 8765 (WS)
+
+For an always-on production deployment (non-root container, healthchecks,
+resource limits, log rotation, optional TLS reverse proxy), use
+`docker/docker-compose.prod.yml` instead:
+
+```bash
+cp docker/.env.prod.example docker/.env.prod
+$EDITOR docker/.env.prod   # set CSI_SOURCE, node positions, resource caps
+docker compose -f docker/docker-compose.prod.yml --env-file docker/.env.prod up -d --build
+```
+
+See [docs/deployment/proxmox.md](deployment/proxmox.md) for deploying this
+on a Proxmox LXC container or VM, including sizing guidance for a mesh of
+several ESP32 nodes.
 
 ---
 

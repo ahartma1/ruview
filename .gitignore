@@ -252,3 +252,8 @@ firmware/esp32-csi-node/build_firmware.batdata/
 models/
 demo_pointcloud.ply
 demo_splats.json
+
+# Local production deployment config (copied from the .example templates,
+# may contain hostnames/ports specific to a deployment)
+docker/.env.prod
+docker/Caddyfile

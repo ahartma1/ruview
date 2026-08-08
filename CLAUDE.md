@@ -113,6 +113,19 @@ The bundle (`dist/witness-bundle-ADR028-<sha>.tar.gz`) packages `WITNESS-LOG-028
 matrix), the ADR-028 audit, the proof script + hash, the full cargo test log, ESP32 firmware
 source hashes, and a crate version manifest — see `docs/adr/ADR-028-esp32-capability-audit.md`.
 
+### Production deployment (ADR-096)
+
+`docker/docker-compose.prod.yml` is the hardened stack (non-root, healthchecks, resource limits,
+optional TLS proxy) for `sensing-server` + `nvsim-server` on an always-on host:
+```bash
+cp docker/.env.prod.example docker/.env.prod   # then edit CSI_SOURCE, node positions, resource caps
+docker compose -f docker/docker-compose.prod.yml --env-file docker/.env.prod up -d --build
+```
+`docker/docker-compose.yml` (no `.prod`) is the quick-evaluation stack — simulated CSI, no
+hardening, meant for local trial only. See `docs/deployment/proxmox.md` for deploying on a
+Proxmox LXC (recommended) or VM, including sizing and network/firewall requirements. Neither
+service has built-in authentication — LAN/VLAN only, not for direct internet exposure.
+
 ## Architecture
 
 ### Signal pipeline (why the crates are structured this way)
@@ -187,14 +200,14 @@ gate), `fusion.rs` (`MultistaticArray` aggregate root, domain events).
 
 ### Architecture Decision Records
 
-92 ADRs in `docs/adr/` (`docs/adr/README.md` is the categorized index — hardware/firmware,
+93 ADRs in `docs/adr/` (`docs/adr/README.md` is the categorized index — hardware/firmware,
 signal processing, ML/training, platform/UI, infra). Read the index before making an
 architectural change; ADRs are the source of truth for *why*, and DDD models in `docs/ddd/`
 define the shared vocabulary (bounded contexts, aggregates) that ADRs reference. Notable
 recent/active ones: ADR-040/041 (WASM edge sensing, 65 modules), ADR-059 (live ESP32 CSI
 pipeline), ADR-079 (camera-supervised training, 92.9% PCK@20), ADR-082 (pose tracker confirmed-
 track filter), ADR-089/090/092 (nvsim NV-diamond simulator), ADR-094 (point-cloud GitHub Pages
-deployment).
+deployment), ADR-096 (production deployment via Docker Compose on Proxmox).
 
 ### Supported hardware
 

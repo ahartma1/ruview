@@ -1,0 +1,47 @@
+# Caddy reverse-proxy template for the `proxy` profile in docker-compose.prod.yml.
+#
+# Copy this to docker/Caddyfile and edit the site addresses below, then:
+#   docker compose -f docker/docker-compose.prod.yml --env-file docker/.env.prod \
+#     --profile proxy up -d --build
+#
+# Two starting points are included below — pick ONE and delete the other.
+
+# ---------------------------------------------------------------------------
+# Option A: LAN-only, no public DNS/TLS cert. Caddy still terminates HTTPS
+# using its own internal CA (self-signed) — browsers will show a warning on
+# first visit unless you trust that CA, which is fine for a home lab.
+# Replace with your Proxmox container/VM's LAN IP or a local hostname.
+# ---------------------------------------------------------------------------
+https://ruview.lan {
+	tls internal
+
+	# sensing-server serves both the REST/UI and the /ws/sensing WebSocket
+	# route on its HTTP port (3000) — reverse_proxy forwards the WebSocket
+	# upgrade transparently, no separate handling needed.
+	handle /nvsim* {
+		uri strip_prefix /nvsim
+		reverse_proxy nvsim-server:7878
+	}
+
+	handle {
+		reverse_proxy sensing-server:3000
+	}
+}
+
+# ---------------------------------------------------------------------------
+# Option B: public domain with automatic Let's Encrypt certificates. Requires
+# port 80/443 reachable from the internet for the ACME challenge and DNS
+# pointed at this host. Given the security note in docker-compose.prod.yml
+# (sensing-server has no built-in auth), only do this behind your own
+# auth layer or VPN.
+# ---------------------------------------------------------------------------
+# ruview.example.com {
+# 	handle /nvsim* {
+# 		uri strip_prefix /nvsim
+# 		reverse_proxy nvsim-server:7878
+# 	}
+#
+# 	handle {
+# 		reverse_proxy sensing-server:3000
+# 	}
+# }
