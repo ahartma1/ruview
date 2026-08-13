@@ -1,6 +1,6 @@
 # Architecture Decision Records
 
-This folder contains 92 Architecture Decision Records (ADRs), numbered ADR-001 through ADR-095 with a few
+This folder contains 93 Architecture Decision Records (ADRs), numbered ADR-001 through ADR-096 with a few
 gaps (ADR-051, ADR-087, ADR-088 are referenced from other ADRs as prospective/planned work but have not
 been written yet), plus one companion appendix (`ADR-052-appendix-ddd-bounded-contexts.md`, the DDD bounded-
 context model for ADR-052). Together they document every significant technical choice in the RuView /
@@ -157,6 +157,7 @@ Statuses: **Proposed** (under discussion), **Accepted** (approved and/or impleme
 | [ADR-090](ADR-090-nvsim-lindblad-extension.md) | nvsim — Lindblad/Hamiltonian Solver Extension | Proposed (conditional) |
 | [ADR-091](ADR-091-stand-off-radar-tier-research.md) | Stand-off Radar Tier Research (77GHz / sub-THz) | Proposed (research only) |
 | [ADR-095](ADR-095-quality-engineering-security-hardening.md) | Quality Engineering Response — Security Hardening & Code Quality | Accepted |
+| [ADR-096](ADR-096-proxmox-docker-deployment.md) | Production Deployment via Docker Compose on Proxmox (LXC) | Accepted |
 
 ---
 

@@ -291,93 +291,53 @@ To see live data:
 
 ## 5. Docker Deployment
 
-### Development (with hot-reload, Postgres, Redis, Prometheus, Grafana)
+Docker artifacts live under `docker/`, not at the repo root. There are two
+generations: `docker/Dockerfile.python` builds the archived v1 RSSI-only
+pipeline, and `docker/Dockerfile.rust` builds the active v2
+`wifi-densepose-sensing-server` (CSI signal processing + UI + REST/WebSocket
+API) -- this is the one the [README quick start](../README.md) and
+production deployments use.
+
+### Quick evaluation (simulated data, no ESP32 required)
 
 ```bash
+cd docker
 docker compose up
 ```
 
-This starts:
-- `wifi-densepose-dev` -- API server with `--reload`, debug logging, auth disabled (port 8000)
-- `postgres` -- PostgreSQL 15 (port 5432)
-- `redis` -- Redis 7 with AOF persistence (port 6379)
-- `prometheus` -- metrics scraping (port 9090)
-- `grafana` -- dashboards (port 3000, login: admin/admin)
-- `nginx` -- reverse proxy (ports 80, 443)
+This builds and starts both `sensing-server` (port 3000 HTTP/UI, 3001 WS,
+5005/udp for ESP32 CSI) and `python-sensing` (the legacy v1 pipeline, ports
+8080/8765) from `docker/docker-compose.yml`. `CSI_SOURCE` defaults to `auto`,
+which falls back to synthetic CSI frames if no ESP32 is reachable on UDP
+5005 -- no hardware needed to try it.
 
 ```bash
-# View logs
-docker compose logs -f wifi-densepose
-
-# Run tests inside the container
-docker compose exec wifi-densepose pytest tests/ -v
-
-# Stop everything
+docker compose logs -f sensing-server
 docker compose down
-
-# Stop and remove volumes
-docker compose down -v
 ```
 
 ### Production
 
-Uses the production Dockerfile stage with 4 uvicorn workers, auth enabled, rate limiting, and resource limits.
+`docker/docker-compose.prod.yml` is the hardened stack for an always-on
+deployment: non-root container user, healthchecks, per-service CPU/memory
+limits, log rotation, named volumes for models and recordings, plus an
+optional Caddy reverse-proxy profile for a single HTTPS entrypoint. It also
+runs `nvsim-server` (the ADR-092 NV-diamond dashboard) alongside the CSI
+sensing server.
 
 ```bash
-# Build production image
-docker build --target production -t wifi-densepose:latest .
-
-# Run standalone
-docker run -d \
-  --name wifi-densepose \
-  -p 8000:8000 \
-  -e ENVIRONMENT=production \
-  -e SECRET_KEY=your-secret-key \
-  wifi-densepose:latest
+cp docker/.env.prod.example docker/.env.prod
+$EDITOR docker/.env.prod   # set CSI_SOURCE, node positions, resource caps
+docker compose -f docker/docker-compose.prod.yml --env-file docker/.env.prod up -d --build
 ```
 
-For the full production stack with Docker Swarm secrets:
+For deploying this on a Proxmox host (LXC container or VM, recommended
+sizing for multi-node ESP32 meshes), see
+[docs/deployment/proxmox.md](deployment/proxmox.md).
 
-```bash
-# Create required secrets first
-echo "db_password_here" | docker secret create db_password -
-echo "redis_password_here" | docker secret create redis_password -
-echo "jwt_secret_here" | docker secret create jwt_secret -
-echo "api_key_here" | docker secret create api_key -
-echo "grafana_password_here" | docker secret create grafana_password -
-
-# Set required environment variables
-export DATABASE_URL=postgresql://wifi_user:db_password_here@postgres:5432/wifi_densepose
-export REDIS_URL=redis://redis:6379/0
-export SECRET_KEY=your-secret-key
-export JWT_SECRET=your-jwt-secret
-export ALLOWED_HOSTS=your-domain.com
-export POSTGRES_DB=wifi_densepose
-export POSTGRES_USER=wifi_user
-
-# Deploy with Docker Swarm
-docker stack deploy -c docker-compose.prod.yml wifi-densepose
-```
-
-Production compose includes:
-- 3 API server replicas with rolling updates and rollback
-- Resource limits (2 CPU, 4GB RAM per replica)
-- Health checks on all services
-- JSON file logging with rotation
-- Separate monitoring network (overlay)
-- Prometheus with alerting rules and 15-day retention
-- Grafana with provisioned datasources and dashboards
-
-### Dockerfile stages
-
-The multi-stage `Dockerfile` provides four targets:
-
-| Target | Use | Command |
-|--------|-----|---------|
-| `development` | Local dev with hot-reload | `docker build --target development .` |
-| `production` | Optimized production image | `docker build --target production .` |
-| `testing` | Runs pytest during build | `docker build --target testing .` |
-| `security` | Runs safety + bandit scans | `docker build --target security .` |
+**Neither service has built-in authentication** -- they're designed to sit
+on a trusted LAN/VLAN with the ESP32 mesh. Don't port-forward them to the
+public internet without a VPN or an authenticating reverse proxy in front.
 
 ---
 
@@ -573,15 +533,12 @@ See [Section 5](#5-docker-deployment).
 Quick reference:
 
 ```bash
-# Development
-docker compose up
+# Evaluation (simulated CSI, no hardware needed)
+cd docker && docker compose up
 
-# Production standalone
-docker build --target production -t wifi-densepose:latest .
-docker run -d -p 8000:8000 wifi-densepose:latest
-
-# Production stack (Swarm)
-docker stack deploy -c docker-compose.prod.yml wifi-densepose
+# Production
+cp docker/.env.prod.example docker/.env.prod
+docker compose -f docker/docker-compose.prod.yml --env-file docker/.env.prod up -d --build
 ```
 
 ### Server (Direct -- no Docker)
@@ -676,9 +633,10 @@ python3 -m http.server 3000 --directory ui
 | `archive/v1/src/sensing/` | Commodity WiFi sensing module (RSSI) |
 | `v2/Cargo.toml` | Rust workspace root |
 | `ui/viz.html` | Three.js 3D visualization |
-| `Dockerfile` | Multi-stage Docker build (dev/prod/test/security) |
-| `docker-compose.yml` | Development stack (Postgres, Redis, Prometheus, Grafana) |
-| `docker-compose.prod.yml` | Production stack (Swarm, secrets, resource limits) |
+| `docker/Dockerfile.rust` | v2 sensing-server image (active production path) |
+| `docker/docker-compose.yml` | Quick evaluation stack (simulated CSI, no hardware needed) |
+| `docker/docker-compose.prod.yml` | Production stack (healthchecks, resource limits, optional TLS proxy) |
+| `docs/deployment/proxmox.md` | Deploying the production stack on a Proxmox LXC/VM |
 | `docs/adr/ADR-009-rvf-wasm-runtime-edge-deployment.md` | WASM edge deployment architecture |
 | `docs/adr/ADR-012-esp32-csi-sensor-mesh.md` | ESP32 firmware and mesh specification |
 | `docs/adr/ADR-013-feature-level-sensing-commodity-gear.md` | Commodity WiFi (RSSI) sensing |

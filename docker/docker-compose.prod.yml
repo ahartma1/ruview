@@ -1,0 +1,127 @@
+# Production Docker Compose stack for π RuView / WiFi-DensePose.
+#
+# Intended for a beefy always-on host — a Proxmox LXC container or VM with
+# considerable spare CPU/RAM — running the Rust sensing server (and
+# optionally the nvsim NV-diamond dashboard) unattended. See
+# docs/deployment/proxmox.md for the full Proxmox setup walkthrough.
+#
+# Quick start:
+#   cp docker/.env.prod.example docker/.env.prod
+#   $EDITOR docker/.env.prod              # set CSI_SOURCE, node positions, resource caps
+#   docker compose -f docker/docker-compose.prod.yml --env-file docker/.env.prod up -d --build
+#
+# Enable the optional reverse-proxy (single HTTPS entrypoint for both
+# services) with:
+#   docker compose -f docker/docker-compose.prod.yml --env-file docker/.env.prod --profile proxy up -d --build
+#
+# Security note: neither sensing-server nor nvsim-server has built-in
+# authentication — they're designed for a trusted LAN/VLAN (the ESP32 mesh
+# talks to sensing-server over plain UDP). Don't publish these ports directly
+# to the public internet; put a VPN or an authenticating reverse proxy in
+# front if remote access is needed.
+
+services:
+  sensing-server:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.rust
+    image: ruvnet/wifi-densepose:latest
+    restart: unless-stopped
+    ports:
+      - "${SENSING_HTTP_PORT:-3000}:3000"       # REST API + UI
+      - "${SENSING_WS_PORT:-3001}:3001"         # WebSocket sensing stream
+      - "${SENSING_UDP_PORT:-5005}:5005/udp"    # ESP32 CSI ingest
+    environment:
+      RUST_LOG: ${RUST_LOG:-info}
+      # auto (default) probes for an ESP32 on UDP 5005 then falls back to
+      # simulation; set esp32 once your mesh is provisioned so the server
+      # doesn't silently fall back to simulated data if a node drops out.
+      CSI_SOURCE: ${CSI_SOURCE:-auto}
+      MODELS_DIR: /app/data/models
+      # Multistatic node geometry: "x,y,z;x,y,z;...", one triplet per ESP32
+      # node in mesh deployment order. Leave unset for a single-node setup.
+      SENSING_NODE_POSITIONS: ${SENSING_NODE_POSITIONS:-}
+    volumes:
+      - sensing-models:/app/data/models
+      - sensing-recordings:/app/data/recordings
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 3s
+      start_period: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: "${SENSING_CPU_LIMIT:-4}"
+          memory: ${SENSING_MEM_LIMIT:-4g}
+        reservations:
+          cpus: "${SENSING_CPU_RESERVATION:-1}"
+          memory: ${SENSING_MEM_RESERVATION:-512m}
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  # Optional: nvsim NV-diamond magnetometer pipeline simulator + dashboard
+  # (ADR-089/092). Independent of WiFi CSI sensing; included because it's
+  # another real, working service in this repo. Disable by scaling to 0:
+  #   docker compose -f docker/docker-compose.prod.yml up -d --scale nvsim-server=0
+  nvsim-server:
+    build:
+      context: ../v2
+      dockerfile: crates/nvsim-server/Dockerfile
+    image: ruvnet/nvsim-server:latest
+    restart: unless-stopped
+    command: ["--listen", "0.0.0.0:7878"]
+    ports:
+      - "${NVSIM_PORT:-7878}:7878"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:7878/api/health"]
+      interval: 30s
+      timeout: 3s
+      start_period: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: "${NVSIM_CPU_LIMIT:-2}"
+          memory: ${NVSIM_MEM_LIMIT:-1g}
+        reservations:
+          cpus: "${NVSIM_CPU_RESERVATION:-0.25}"
+          memory: ${NVSIM_MEM_RESERVATION:-128m}
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  # Optional single HTTPS entrypoint fronting both services. Off by default;
+  # enable with `--profile proxy`. Edit docker/Caddyfile.example (copy to
+  # docker/Caddyfile) to set your hostname/TLS mode before enabling.
+  proxy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    profiles: ["proxy"]
+    depends_on:
+      - sensing-server
+      - nvsim-server
+    ports:
+      - "${PROXY_HTTP_PORT:-80}:80"
+      - "${PROXY_HTTPS_PORT:-443}:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    deploy:
+      resources:
+        limits:
+          cpus: "${PROXY_CPU_LIMIT:-1}"
+          memory: ${PROXY_MEM_LIMIT:-256m}
+
+volumes:
+  sensing-models:
+  sensing-recordings:
+  caddy-data:
+  caddy-config:

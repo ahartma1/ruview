@@ -14,7 +14,6 @@ COPY v2/crates/ ./crates/
 # Copy vendored RuVector crates
 COPY vendor/ruvector/ /build/vendor/ruvector/
 
-# Build release binary
 RUN cargo build --release -p wifi-densepose-sensing-server 2>&1 \
     && strip target/release/sensing-server
 
@@ -22,8 +21,9 @@ RUN cargo build --release -p wifi-densepose-sensing-server 2>&1 \
 FROM debian:bookworm-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+    ca-certificates curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd -r sensing && useradd -r -g sensing -d /app sensing
 
 WORKDIR /app
 
@@ -33,6 +33,9 @@ COPY --from=builder /build/target/release/sensing-server /app/sensing-server
 # Copy UI assets
 COPY ui/ /app/ui/
 
+RUN mkdir -p /app/data/models /app/data/recordings \
+    && chown -R sensing:sensing /app
+
 # HTTP API
 EXPOSE 3000
 # WebSocket
@@ -41,6 +44,11 @@ EXPOSE 3001
 EXPOSE 5005/udp
 
 ENV RUST_LOG=info
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+    CMD curl -fsS http://localhost:3000/health || exit 1
+
+USER sensing
 
 # CSI_SOURCE controls which data source the sensing server uses at startup.
 # auto      — probe UDP port 5005 for an ESP32 first; fall back to simulation (default)

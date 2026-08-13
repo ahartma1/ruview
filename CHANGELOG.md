@@ -8,6 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Production Docker Compose stack + Proxmox deployment guide** (ADR-096) —
+  `docker/docker-compose.prod.yml` runs `sensing-server` and `nvsim-server`
+  hardened for an always-on host: non-root container user, `/health`
+  healthchecks, per-service CPU/memory limits, JSON log rotation, named
+  volumes for models/recordings, and an opt-in Caddy reverse-proxy profile
+  (`docker/Caddyfile.example`). `docker/Dockerfile.rust` now runs as a
+  non-root user and defines a `HEALTHCHECK`. New
+  `docs/deployment/proxmox.md` covers LXC-vs-VM tradeoffs, sizing, network/
+  firewall requirements, and backup guidance for deploying on a Proxmox
+  host with considerable spare capacity; `scripts/deploy-proxmox-lxc.sh`
+  templates the `pct create` + Docker install + clone steps. Fixed
+  `docs/build-guide.md`'s Docker Deployment section, which had drifted to
+  describe a Kubernetes/Swarm-based Python stack that doesn't exist in this
+  repo, to match the real `docker/` artifacts.
 - **`nvsim` crate — deterministic NV-diamond magnetometer pipeline simulator** (ADR-089) —
   New standalone leaf crate at `v2/crates/nvsim` modeling a forward-only
   magnetic sensing path: scene → source synthesis (Biot–Savart, dipole,
